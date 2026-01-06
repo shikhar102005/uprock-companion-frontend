@@ -46,24 +46,25 @@ export function FunctionsGrid() {
         {/* Functions Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {functions.map((item, index) => (
-            <motion.div 
-              key={index} 
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
-              viewport={{ once: true }}
-              className="group flex flex-col bg-white rounded-[40px] border border-border overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-2"
-              style={{ minHeight: '520px' }}
-            >
-              {/* Card Header Content */}
-              <div className="p-10">
-                <h4 className="font-display text-[32px] md:text-[48px] font-semibold tracking-tight text-foreground mb-6 group-hover:text-primary transition-colors">
-                  {item.title}
-                </h4>
-                <p className="text-[17px] font-normal leading-relaxed text-foreground/70">
-                  {item.description}
-                </p>
-              </div>
+              <motion.div 
+                key={index} 
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                viewport={{ once: true }}
+                className="group flex flex-col bg-white rounded-[40px] border border-border overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-2"
+                style={{ minHeight: '520px' }}
+              >
+                {/* Card Header Content */}
+                <div className={`p-10 ${item.title === "Understand" ? "text-center flex flex-col items-center" : ""}`}>
+                  <h4 className="font-display text-[32px] md:text-[48px] font-semibold tracking-tight text-foreground mb-6 group-hover:text-primary transition-colors">
+                    {item.title}
+                  </h4>
+                  <p className={`text-[17px] font-normal leading-relaxed text-foreground/70 ${item.title === "Understand" ? "max-w-[280px]" : ""}`}>
+                    {item.description}
+                  </p>
+                </div>
+
 
               {/* Card Image Area */}
               <div className="mt-auto relative w-full aspect-square p-6">
