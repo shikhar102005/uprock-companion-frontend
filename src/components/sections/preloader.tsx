@@ -1,14 +1,11 @@
 "use client";
 
-import React, { useRef } from 'react';
-import { useScroll, useTransform, motion } from 'framer-motion';
+import React, { useEffect, useState, useRef } from 'react';
 
 export function Preloader() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"]
-  });
+  const [activeStep, setActiveStep] = useState(0);
+  const [isVisible, setIsVisible] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const steps = [
     {
@@ -25,86 +22,93 @@ export function Preloader() {
     }
   ];
 
-  // Map scroll progress to each step
-  const stepOpacity0 = useTransform(scrollYProgress, [0, 0.25, 0.33], [1, 1, 0]);
-  const stepOpacity1 = useTransform(scrollYProgress, [0.33, 0.4, 0.58, 0.66], [0, 1, 1, 0]);
-  const stepOpacity2 = useTransform(scrollYProgress, [0.66, 0.75, 1], [0, 1, 1]);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveStep((prev) => {
+        if (prev >= steps.length - 1) {
+          clearInterval(timer);
+          setTimeout(() => setIsVisible(false), 1500);
+          return prev;
+        }
+        return prev + 1;
+      });
+    }, 2500);
 
-  const stepScale0 = useTransform(scrollYProgress, [0, 0.33], [1, 1.1]);
-  const stepScale1 = useTransform(scrollYProgress, [0.33, 0.66], [1.1, 1]);
-  const stepScale2 = useTransform(scrollYProgress, [0.66, 1], [1.1, 1]);
+    return () => clearInterval(timer);
+  }, [steps.length]);
 
-  const opacities = [stepOpacity0, stepOpacity1, stepOpacity2];
-  const scales = [stepScale0, stepScale1, stepScale2];
+  if (!isVisible) return null;
 
   return (
-    <div ref={containerRef} className="relative h-[400vh] w-full bg-background">
-      <div className="sticky top-0 h-screen w-full overflow-hidden">
-        {/* Background Video Layer (Subtle) */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10 z-0">
-          <video 
-            autoPlay 
-            muted 
-            loop 
-            playsInline
-            className="w-full h-full object-cover"
-            src="https://video.srv18.com/v/mp4/39725c490839145c5f5d57486a709377/1920"
-          />
-        </div>
+    <div 
+      className={`fixed inset-0 z-[9999] flex items-center justify-center bg-background transition-opacity duration-1000 ease-in-out ${!isVisible ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+    >
+      {/* Background Video Layer */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10">
+        <video 
+          ref={videoRef}
+          autoPlay 
+          muted 
+          loop 
+          playsInline
+          className="w-full h-full object-cover"
+          src="https://video.srv18.com/v/mp4/39725c490839145c5f5d57486a709377/1920"
+        />
+      </div>
 
+      {/* Main Content Wrapper */}
+      <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+        
         {/* Masked Image Layer */}
-        <div className="absolute inset-0 z-10">
+        <div className="absolute inset-0 flex items-center justify-center">
           {steps.map((step, index) => (
-            <motion.div 
+            <div 
               key={index}
-              className="absolute inset-0"
+              className={`absolute transition-all duration-1000 ease-in-out ${activeStep === index ? 'opacity-100 scale-100' : 'opacity-0 scale-110'}`}
               style={{
-                opacity: opacities[index],
-                scale: scales[index],
+                width: '100%',
+                maxWidth: '800px',
+                height: '70vh',
                 zIndex: index + 1
               }}
             >
-              <div className="w-full h-full">
+              <div className="w-full h-full overflow-hidden rounded-2xl shadow-2xl">
                 <img 
                   src={step.image} 
                   alt="" 
-                  className="w-full h-full object-cover filter brightness-[0.6] grayscale-[0.2]"
+                  className="w-full h-full object-cover filter brightness-75 grayscale-[0.3]"
                 />
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
 
         {/* Masked Typography Layer */}
-        <div className="relative z-20 h-full w-full flex items-center justify-center pointer-events-none select-none">
-          <div className="relative w-full text-center">
-            {steps.map((step, index) => {
-              const textY = useTransform(
-                scrollYProgress,
-                [index * 0.33, (index + 0.1) * 0.33, (index + 0.23) * 0.33, (index + 0.33) * 0.33],
-                [100, 0, 0, -100]
-              );
-              const textOpacity = useTransform(
-                scrollYProgress,
-                [index * 0.33, (index + 0.1) * 0.33, (index + 0.23) * 0.33, (index + 0.33) * 0.33],
-                [0, 1, 1, 0]
-              );
-
-              return (
-                <motion.h1 
-                  key={index}
-                  className="absolute left-0 right-0 px-4 text-white mix-blend-difference font-display font-bold leading-none"
-                  style={{
-                    y: textY,
-                    opacity: textOpacity,
-                    fontSize: 'clamp(40px, 10vw, 120px)',
-                  }}
-                >
-                  {step.text}
-                </motion.h1>
-              );
-            })}
+        <div className="relative z-10 w-full text-center pointer-events-none select-none">
+          <div className="relative h-[200px] flex items-center justify-center overflow-hidden">
+            {steps.map((step, index) => (
+              <h1 
+                key={index}
+                className={`absolute w-full px-4 text-white mix-blend-difference font-display font-bold leading-none transition-all duration-1000 ease-in-out
+                  ${activeStep === index ? 'translate-y-0 opacity-100' : 
+                    activeStep > index ? '-translate-y-full opacity-0' : 'translate-y-full opacity-0'}
+                `}
+                style={{
+                  fontSize: 'clamp(40px, 10vw, 120px)',
+                }}
+              >
+                {step.text}
+              </h1>
+            ))}
           </div>
+        </div>
+
+        {/* Framing Masks */}
+        <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-0 left-0 w-full h-[10vh] bg-background z-[5]"></div>
+            <div className="absolute bottom-0 left-0 w-full h-[10vh] bg-background z-[5]"></div>
+            <div className="absolute top-0 left-0 w-[5vw] h-full bg-background z-[5]"></div>
+            <div className="absolute top-0 right-0 w-[5vw] h-full bg-background z-[5]"></div>
         </div>
       </div>
     </div>
