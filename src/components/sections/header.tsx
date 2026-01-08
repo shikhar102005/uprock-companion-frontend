@@ -8,31 +8,44 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    useEffect(() => {
+      const handleScroll = () => {
+        setIsScrolled(window.scrollY > 50);
+      };
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
-  const navLinks = [
-    { label: "About", href: "#about" },
-    { label: "Capabilities", href: "#capabilities" },
-    { label: "Experience", href: "#experience" },
-    { label: "Specs", href: "#specs" },
-  ];
+    const navLinks = [
+      { label: "About", href: "#about" },
+      { label: "Capabilities", href: "#capabilities" },
+      { label: "Experience", href: "#experience" },
+      { label: "Specs", href: "#specs" },
+    ];
 
-  return (
-    <>
-      {/* Sticky Header */}
-      <header
-        className={`fixed top-0 left-0 w-full z-[100] transition-all duration-500 ease-in-out ${
-          isScrolled 
-            ? "py-4 bg-white/80 backdrop-blur-md shadow-sm" 
-            : "py-8 bg-transparent"
-        }`}
-      >
+    // Hide header during intro (first 300vh)
+    const [isVisible, setIsVisible] = useState(false);
+    useEffect(() => {
+      const checkVisibility = () => {
+        setIsVisible(window.scrollY > window.innerHeight * 2.5);
+      };
+      window.addEventListener("scroll", checkVisibility);
+      checkVisibility();
+      return () => window.removeEventListener("scroll", checkVisibility);
+    }, []);
+
+    if (!isVisible) return null;
+
+    return (
+      <>
+        {/* Sticky Header */}
+        <header
+          className={`fixed top-0 left-0 w-full z-[100] transition-all duration-500 ease-in-out ${
+            isScrolled 
+              ? "py-4 bg-white/80 backdrop-blur-md shadow-sm" 
+              : "py-8 bg-transparent"
+          }`}
+        >
         <div className="container mx-auto">
           <div className="flex items-center justify-between">
             {/* Logo */}
