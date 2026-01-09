@@ -1,4 +1,3 @@
-import { Preloader } from "@/components/sections/preloader";
 import { Header } from "@/components/sections/header";
 import { Hero } from "@/components/sections/hero";
 import { IntroScroll } from "@/components/sections/intro-scroll";
@@ -11,7 +10,6 @@ import { Footer } from "@/components/sections/footer";
 export default function Home() {
   return (
     <main className="min-h-screen bg-background">
-      <Preloader />
       <IntroScroll />
       <Header />
       <Hero />
